@@ -82,3 +82,28 @@ class VxChannel:
             0,
             0
             )
+        
+    def send_attitude(self, roll, pitch, yaw):
+        """
+        The attitude in the aeronautical frame (right-handed, Z-down, Y-right,
+        X-front, ZYX, intrinsic).
+
+        time_boot_ms              : Timestamp (time since system boot). [ms] (type:uint32_t)
+        roll                      : Roll angle (-pi..+pi) [rad] (type:float)
+        pitch                     : Pitch angle (-pi..+pi) [rad] (type:float)
+        yaw                       : Yaw angle (-pi..+pi) [rad] (type:float)
+        rollspeed                 : Roll angular speed [rad/s] (type:float)
+        pitchspeed                : Pitch angular speed [rad/s] (type:float)
+        yawspeed                  : Yaw angular speed [rad/s] (type:float)
+
+        """
+        self.connection.mav.attitude_send(
+            0,
+            roll,
+            pitch,
+            yaw,
+            0,
+            0,
+            0
+        )
+

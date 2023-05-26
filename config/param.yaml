@@ -1,0 +1,4 @@
+gps_topic: "/alpha_std/gps/fix"
+battery_topic: "/battery"
+depth_topic: "/alpha_std/pressure"
+odometry: "/alpha_std/odometry/filtered/local"
