@@ -10,8 +10,8 @@ class GroundControlChannel:
     def wait_heartbeat(self):
         return self.connection.wait_heartbeat()
 
-    def recv_match(self):
-        return self.connection.recv_match()        
+    def recv_match(self, type=None):
+        return self.connection.recv_match(type=type)        
 
 
 class VxChannel:
