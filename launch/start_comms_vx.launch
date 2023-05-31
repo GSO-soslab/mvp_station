@@ -1,6 +1,6 @@
 <launch>
     <rosparam file="$(find vx_comms)/config/param.yaml" />
-    <node name="depth_estimation_node" 
+    <node name="MAVLInk_node" 
             pkg="vx_comms" 
             type="vx_script.py"  
             output="screen">
