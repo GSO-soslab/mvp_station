@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import socket
-# import qgis
-# from pyproj import Proj, transform
+import csv
+from pyproj import Proj, transform
+
 
 class Visualise:
     def __init__(self, HOST, PORT):
@@ -9,6 +10,14 @@ class Visualise:
         self.PORT = PORT
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((self.HOST, self.PORT))
+        
+        self.csv_data='/home/soslab/PyGQIS/data.csv'
+        self.csv_file = open(self.csv_data, 'a')
+        header = ['LATITUDE', 'LONGITUDE','ROLL','PITCH','YAW']
+        dw = csv.DictWriter(self.csv_file, delimiter=',', fieldnames=header)
+        dw.writeheader()
+        self.csv_file.close()
+        self.lat,self.long,self.roll, self.pitch, self.yaw =-1354685,-4838518,0,0,0
 
     def connect(self):
         data = self.s.recv(1024)
@@ -22,34 +31,32 @@ class Visualise:
                 self.parse_yaw()
             elif self.res[0] == 'BAD_DATA':
                 print("Bad data")
+            self.write_to_csv()
                     # res = [float(i) for i in res]
 
     def parse_gps(self):
         #['GPS', ' 40999994.0', '71000000.0', '2140.774169921875']
-        # P3857 = Proj(init='epsg:3857')
-        # P4326 = Proj(init='epsg:4326')
+        P3857 = Proj(init='epsg:3857')
+        P4326 = Proj(init='epsg:4326')
         lat = float(self.res[1]) /10e5
         long = float(self.res[2]) /10e5
-        alt = float(self.res[3])
-        print(lat, long)
-
-        # x,y = transform(P4326, P3857, long , lat)
-        # fn = "/home/soslab/PyGQIS/point.shp"
-        # writer = qgis.QgsVectorFileWriter(fn, 'UTF-8', layerFields, QgsWkbTypes.Point, QgsCoordinateReferenceSystem("EPSG:3857"), "ESRI Shapefile")
-
-        # feat = QgsFeature()
-        # feat.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(x,y)))
-        # writer.addFeature(feat)
-
-        # iface.addVectorLayer(fn, '', 'ogr')
-        # del(writer)
+        self.alt = float(self.res[3])
+        self.long,self.lat = transform(P4326, P3857, long , lat)
 
     def parse_yaw(self):
         #[ATTITUDE, -0.01279214583337307,-0.03361418843269348,-0.01279214583337307]'
-        roll = float(self.res[1]) 
-        pitch = float(self.res[2])
-        yaw = float(self.res[3])
-        print(yaw)
+        self.roll = float(self.res[1]) 
+        self.pitch = float(self.res[2])
+        self.yaw = float(self.res[3])
+
+    def write_to_csv(self):
+        self.csv_file = open(self.csv_data, 'a')
+        self.csv_writer = csv.writer(self.csv_file, delimiter=',',quotechar='"',quoting=csv.QUOTE_ALL)
+        self.csv_writer.writerow([self.lat,self.long,self.roll, self.pitch, self.yaw])
+        print(self.lat, self.roll)
+        self.csv_file.close()
+        
+
 
 if __name__ == "__main__":
     vis = Visualise(HOST="192.168.1.186", PORT=8080)
