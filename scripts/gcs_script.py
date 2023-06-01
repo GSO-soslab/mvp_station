@@ -36,7 +36,7 @@ class CommsGCS:
         type_msg = ""
         while 1:
             try:
-                print("Start to send to socket")
+                # print("Start to send to socket")
                 if self.msg != None:
                     type_msg = self.msg.get_type()
                     if type_msg == 'GPS_INPUT':
@@ -45,7 +45,7 @@ class CommsGCS:
                         self.send_attitude(self.msg, conn)
                     elif type_msg == 'BAD_DATA':
                         self.send_bad_data(self.msg, conn)
-                    time.sleep(0.5)
+                time.sleep(0.5)
             except:
                 conn.close()
     
@@ -53,12 +53,12 @@ class CommsGCS:
         # print("Receiving MAVmsgs")
         self.msg = self.gc.recv_match()
         print(self.msg)
-        time.sleep(1 )
+        time.sleep(0.5)
         self.recv_mavlink_msg()
 
     def encode_and_send(self, message, conn):
         message = message.encode()
-        print(message)
+        # print(message)
         conn.sendall(message)
         # print("sent")
 
@@ -75,6 +75,4 @@ class CommsGCS:
         self.encode_and_send(message, conn)
 
 if __name__ == "__main__":
-    comms = CommsGCS(HOST= "192.168.1.186", PORT=8080, device="/dev/ttyUSB1", baud=57600)
-    
-    
+    comms = CommsGCS(HOST= "192.168.1.186", PORT=8080, device="/dev/ttyUSB0", baud=57600)
