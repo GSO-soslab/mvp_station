@@ -51,10 +51,10 @@ class CommsGCS:
     
     def recv_mavlink_msg(self):
         # print("Receiving MAVmsgs")
-        self.msg = self.gc.recv_match()
-        print(self.msg)
-        time.sleep(0.5)
-        self.recv_mavlink_msg()
+        while 1:
+            self.msg = self.gc.recv_match()
+            print(self.msg)
+            time.sleep(0.5)
 
     def encode_and_send(self, message, conn):
         message = message.encode()
