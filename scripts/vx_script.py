@@ -3,6 +3,7 @@ import driver
 import rospy
 import time
 import tf
+import numpy as np
 from sensor_msgs.msg import NavSatFix, FluidPressure
 from nav_msgs.msg import Odometry
 
@@ -26,9 +27,10 @@ class CommsROSVx:
         self.enable_odom = rospy.get_param("enable_odom", True)
         sub_odom_topic = rospy.get_param("odometry", "/odom")
         
-        rospy.Subscriber(sub_gps_topic, NavSatFix, self.tx_gps)
-        rospy.Subscriber(sub_depth_topic, FluidPressure, self.tx_depth)
-        rospy.Subscriber(sub_odom_topic,Odometry, self.tx_odom)
+        #Queue size = 1 to get the latest message.
+        rospy.Subscriber(sub_gps_topic, NavSatFix, self.tx_gps, queue_size=1)
+        rospy.Subscriber(sub_depth_topic, FluidPressure, self.tx_depth, queue_size=1)
+        rospy.Subscriber(sub_odom_topic,Odometry, self.tx_odom, queue_size=1)
         # rospy.Subscriber(sub_battery_topic,Odometry, self.tx_odom)
 
         #Some global varibles
@@ -59,15 +61,14 @@ class CommsROSVx:
             y = msg.pose.pose.orientation.y
             z = msg.pose.pose.orientation.z
             w = msg.pose.pose.orientation.w
-            quaternion = (x,y,z,w)
-            roll, pitch, yaw = tf.transformations.euler_from_quaternion(quaternion)
+            roll, pitch, yaw = tf.transformations.euler_from_quaternion([x,y,z,w])
+            # print(np.degrees(roll), np.degrees(pitch), np.degrees(yaw))
             self.tx_heartbeat()
-            self.vx.send_attitude(roll=roll, pitch=pitch, yaw=yaw)
+            self.vx.send_attitude(roll=np.degrees(roll), pitch=np.degrees(pitch), yaw=np.degrees(yaw))
             rospy.loginfo("Attitude Sent")
-            time.sleep(1)
-
+            time.sleep(0.5)
 
 if __name__ == "__main__":
     rospy.init_node("Vx_to_MAVLink")
-    VxComms = CommsROSVx('/dev/ttyUSB0', 57600)
+    VxComms = CommsROSVx('/dev/ttyUSB1', 57600)
     rospy.spin()
