@@ -55,7 +55,6 @@ class Visualise:
         self.csv_file = open(self.csv_data, 'a')
         self.csv_writer = csv.writer(self.csv_file, delimiter=',',quotechar='"',quoting=csv.QUOTE_ALL)
         self.csv_writer.writerow([self.x,self.y,self.roll, self.pitch, self.yaw])
-        print(self.x, self.y)
         self.csv_file.close()
         
 
