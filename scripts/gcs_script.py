@@ -4,7 +4,6 @@ import socket
 import threading
 import time
 
-
 class CommsGCS:
     def __init__(self, HOST:str, PORT:str, device:str, baud:int):
         self.HOST = HOST  # The server's hostname or IP address
@@ -28,16 +27,14 @@ class CommsGCS:
         self.s.listen()
         while True:
             conn, addr = self.s.accept()
-            print("Got connection from", conn)
+            print("Got connection from", addr)
             #Each new connection gets a new thread
-            threading.Thread(target=self.start_socket, args=(conn,)).start()
-            print(f'[Active Connections]: {threading.activeCount() - 1}')
+            self.x = threading.Thread(target=self.start_socket, args=(conn, addr)).start()
+            print(f'[Active Connections]: {threading.activeCount()}')
     
-    def start_socket(self, conn):
-        type_msg = ""
+    def start_socket(self, conn, addr):
         while 1:
             try:
-                # print("Start to send to socket")
                 if self.msg != None:
                     type_msg = self.msg.get_type()
                     if type_msg == 'GPS_INPUT':
@@ -49,7 +46,9 @@ class CommsGCS:
                 time.sleep(self.threadlock_speed)
             except:
                 conn.close()
-    
+                print(f"[INFO]: Closed the connection from {addr}")
+                self.x.join()
+
     def recv_mavlink_msg(self):
         #Runs on a seperate thread and continuously gets the new MAVmsgs.
         while 1:
