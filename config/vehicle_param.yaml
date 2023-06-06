@@ -1,0 +1,11 @@
+enable_gps: True
+gps_topic: "/wamv/gps/fix"
+
+enable_battery: True
+battery_topic: "/battery"
+
+enable_depth: True
+depth_topic: "/alpha_std/pressure"
+
+enable_odom: True
+odometry: "/wamv/odometry/filtered/local"
