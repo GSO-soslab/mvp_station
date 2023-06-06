@@ -22,7 +22,7 @@ class Visualise:
         self.csv_file.close()
         self.x,self.y,self.roll, self.pitch, self.yaw = 0,0,0,0,0
 
-    def connect(self):
+    def connect_to_gcs(self):
         data = self.s.recv(1024)
         if data != b"":
             data = data.decode()
@@ -62,4 +62,4 @@ class Visualise:
 if __name__ == "__main__":
     vis = Visualise(HOST="192.168.1.186", PORT=8080)
     while 1:
-        vis.connect()
+        vis.connect_to_gcs()
