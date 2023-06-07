@@ -1,5 +1,5 @@
 <launch>
-    <rosparam file="$(find vx_comms)/config/param.yaml" />
+    <rosparam file="$(find vx_comms)/config/vehicle_param.yaml" />
     <node name="MAVLInk_node" 
             pkg="vx_comms" 
             type="vx_script.py"  
