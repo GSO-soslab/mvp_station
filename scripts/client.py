@@ -3,6 +3,7 @@ import socket
 import csv
 import pyproj
 import os
+from datetime import datetime
 
 
 class Visualise:
@@ -15,8 +16,8 @@ class Visualise:
         self.csv_data='/home/soslab/PyGQIS/data.csv'
         if os.path.exists(self.csv_data):
             os.remove(self.csv_data)
-        self.csv_file = open(self.csv_data, 'a')
-        header = ['X', 'Y','ROLL','PITCH','YAW']
+        self.csv_file = open(self.csv_data, 'w')
+        header = ['TIME','X', 'Y','ROLL','PITCH','YAW']
         dw = csv.DictWriter(self.csv_file, delimiter=',', fieldnames=header)
         dw.writeheader()
         self.csv_file.close()
@@ -35,7 +36,6 @@ class Visualise:
             elif self.res[0] == 'BAD_DATA':
                 print("Bad data")
             self.write_to_csv()
-                    # res = [float(i) for i in res]
 
     def parse_gps(self):
         #['GPS', ' 40999994.0', '71000000.0', '2140.774169921875']
@@ -54,7 +54,8 @@ class Visualise:
     def write_to_csv(self):
         self.csv_file = open(self.csv_data, 'a')
         self.csv_writer = csv.writer(self.csv_file, delimiter=',',quotechar='"',quoting=csv.QUOTE_ALL)
-        self.csv_writer.writerow([self.x,self.y,self.roll, self.pitch, self.yaw])
+        self.csv_writer.writerow([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                                  self.x,self.y,self.roll, self.pitch, self.yaw])
         self.csv_file.close()
         
 
