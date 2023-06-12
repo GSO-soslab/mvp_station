@@ -4,6 +4,7 @@ import rospy
 import time
 import tf
 import numpy as np
+from std_msgs.msg import Int16
 from sensor_msgs.msg import NavSatFix, FluidPressure
 from nav_msgs.msg import Odometry
 
@@ -31,7 +32,7 @@ class CommsROSVx:
         rospy.Subscriber(sub_gps_topic, NavSatFix, self.tx_gps, queue_size=1)
         rospy.Subscriber(sub_depth_topic, FluidPressure, self.tx_depth, queue_size=1)
         rospy.Subscriber(sub_odom_topic,Odometry, self.tx_odom, queue_size=1)
-        # rospy.Subscriber(sub_battery_topic,Odometry, self.tx_odom)
+        rospy.Subscriber(sub_battery_topic,Int16, self.tx_battery, queue_size=1)
 
         #Some global varibles
         self.depth = 0
@@ -68,7 +69,12 @@ class CommsROSVx:
             rospy.loginfo("Attitude Sent")
             time.sleep(0.5)
 
+    def tx_battery(self, msg):
+        if self.enable_battery:
+            self.vx.send_battery(msg.data)
+            rospy.loginfo("Battery Sent")
+
 if __name__ == "__main__":
     rospy.init_node("Vx_to_MAVLink")
-    VxComms = CommsROSVx('/dev/ttyUSB1', 57600)
+    VxComms = CommsROSVx('/dev/ttyUSB0', 57600)
     rospy.spin()
