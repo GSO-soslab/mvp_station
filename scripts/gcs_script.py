@@ -43,6 +43,8 @@ class CommsGCS:
                         self.send_attitude(self.msg, conn)
                     elif type_msg == 'BAD_DATA':
                         self.send_bad_data(self.msg, conn)
+                    elif type_msg == 'BATTERY_STATUS':
+                        self.send_battery(self.msg, conn)
                 time.sleep(self.threadlock_speed)
             except:
                 conn.close()
@@ -78,5 +80,14 @@ class CommsGCS:
         message = f"[BAD_DATA]"
         self.encode_and_send(message, conn)
 
+    def send_battery(self, msg, conn):
+        #BATTERY_STATUS {id : 0, battery_function : 0, 
+        # type : 0, temperature : 0, 
+        # voltages : [95, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+        # current_battery : 0, current_consumed : 0, 
+        # energy_consumed : 0, battery_remaining : 0}
+        message = f"[BATTERY_STATUS, {msg.voltages[0]}]"
+        self.encode_and_send(message, conn)
+
 if __name__ == "__main__":
-    comms = CommsGCS(HOST= "192.168.1.186", PORT=8080, device="/dev/ttyUSB0", baud=57600)
+    comms = CommsGCS(HOST= "192.168.1.186", PORT=8080, device="/dev/ttyUSB1", baud=57600)
