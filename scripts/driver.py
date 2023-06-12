@@ -53,7 +53,7 @@ class VxChannel:
         0   # Number of satellites visible
         )
 
-    def send_battery(self):
+    def send_battery(self, voltage):
         """
         Line 167770 in generated_messages.py
               
@@ -76,7 +76,7 @@ class VxChannel:
             0,
             0,
             0,
-            (0,0,0,0,0,0,0,0,0,0),
+            (voltage,0,0,0,0,0,0,0,0,0),
             0,
             0,
             0,
