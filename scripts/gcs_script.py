@@ -72,7 +72,6 @@ class CommsGCS:
     
     def send_attitude(self, msg, conn):
         msg.yaw = self.convert_to_0_360(msg.yaw)
-        print(msg.yaw)
         message = f"[ATTITUDE, {msg.roll}" + "," + f"{msg.pitch}" + "," + f"{msg.yaw}]"
         self.encode_and_send(message, conn)
 
