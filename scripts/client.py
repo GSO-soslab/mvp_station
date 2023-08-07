@@ -4,6 +4,7 @@ import csv
 import pyproj
 import os
 from datetime import datetime
+from pathlib import Path
 
 
 class Visualise:
@@ -13,7 +14,8 @@ class Visualise:
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect((self.HOST, self.PORT))
         
-        self.csv_data='/home/soslab/PyGQIS/data.csv'
+        home = str(Path.home())
+        self.csv_data=home + '/PyGQIS/data.csv'
         if os.path.exists(self.csv_data):
             os.remove(self.csv_data)
         self.csv_file = open(self.csv_data, 'w')
