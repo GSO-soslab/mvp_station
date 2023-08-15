@@ -8,19 +8,38 @@ class CommsGCS:
     def __init__(self, HOST:str, PORT:str, device:str, baud:int):
         self.HOST = HOST  # The server's hostname or IP address
         self.PORT = PORT  # The port used by the server
+
+        #MAVLink Connection
         self.gc = driver.GroundControlChannel(device=device, baud=baud)
+        
+        #Socket Connection
         self.s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.msg = None
+
         #Socket Server
         self.s.bind((HOST, PORT))
+
+        print("Waiting for heartbeat")
         self.gc.wait_heartbeat()
         print("Heartbeat Received")
+        
+        #This hyperparameter controls the speed at which a thread is locked.
         self.threadlock_speed = 0.25
 
-        #One thread to monitor new MAVmsgs, One thread to listen for new clients and send msg through sockets.
+        #thread to monitor new MAVmsgs.
         threading.Thread(target=self.listen).start()
+        #thread to listen for new clients and send msg through sockets.
         threading.Thread(target=self.recv_mavlink_msg).start()
+        #Thread to receive waypoints from client
+        threading.Thread(target=self.recv_wp).start()
         
+    def recv_wp(self):
+        while 1:
+            data = [[-41, 70, 0], [100,100,0]]
+            key = input()
+            if key == "k":
+                self.gc.send_wp(self.gc.connection, data)
+                print("sent")
 
     def listen(self):
         print("Starting to listen for socket client")
@@ -85,8 +104,8 @@ class CommsGCS:
         # voltages : [95, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
         # current_battery : 0, current_consumed : 0, 
         # energy_consumed : 0, battery_remaining : 0}
-        message = f"[BATTERY_STATUS, {msg.voltages[0]}]"
+        message = f"[BATTERY_STATUS, {msg.voltages[0]}]"    
         self.encode_and_send(message, conn)
 
 if __name__ == "__main__":
-    comms = CommsGCS(HOST= "192.168.1.186", PORT=8080, device="/dev/ttyUSB1", baud=57600)
+    comms = CommsGCS(HOST= "192.168.1.172", PORT=8080, device="/dev/ttyUSB0", baud=57600)
