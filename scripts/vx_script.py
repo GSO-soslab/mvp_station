@@ -7,14 +7,14 @@ import numpy as np
 from std_msgs.msg import Int16
 from sensor_msgs.msg import NavSatFix, FluidPressure
 from nav_msgs.msg import Odometry
-
+import threading
 
 class CommsROSVx:
     def __init__(self, device:str, baud:int):
         #MAVLink Connection
         self.vx = driver.VxChannel(device=device, baud=baud)
         self.tx_heartbeat()
-
+        
         #ROS Subscriber Info
         self.enable_gps = rospy.get_param("enable_gps", True)
         sub_gps_topic = rospy.get_param("gps_topic", "/gps")
@@ -36,6 +36,14 @@ class CommsROSVx:
 
         #Some global varibles
         self.depth = 0
+        self.x = threading.Thread(target=self.read_wp).start()
+
+    def read_wp(self):
+        while True:
+            msg = self.vx.recv_match(type=["MISSION_CLEAR_ALL","MISSION_ITEM", "MISSION_COUNT"]) 
+            print("Received Waypoints from gcs:", msg)
+            time.sleep(1)
+
 
     #Send Hearbeat.
     def tx_heartbeat(self):
@@ -49,7 +57,7 @@ class CommsROSVx:
             longitude = round(msg.longitude *10e5)
             self.tx_heartbeat()
             self.vx.send_gps(latitude=lat, longitude=longitude, depth = self.depth)
-            rospy.loginfo("GPS Sent")
+            # rospy.loginfo("GPS Sent")
     
     def tx_depth(self, msg):
         if self.enable_depth:
@@ -63,16 +71,15 @@ class CommsROSVx:
             z = msg.pose.pose.orientation.z
             w = msg.pose.pose.orientation.w
             roll, pitch, yaw = tf.transformations.euler_from_quaternion([x,y,z,w])
-            # print(np.degrees(roll), np.degrees(pitch), np.degrees(yaw))
             self.tx_heartbeat()
             self.vx.send_attitude(roll=np.degrees(roll), pitch=np.degrees(pitch), yaw=np.degrees(yaw))
-            rospy.loginfo("Attitude Sent")
             time.sleep(0.5)
+            # rospy.loginfo("Attitude Sent")
 
     def tx_battery(self, msg):
         if self.enable_battery:
             self.vx.send_battery(msg.data)
-            rospy.loginfo("Battery Sent")
+            # rospy.loginfo("Battery Sent")
 
 if __name__ == "__main__":
     rospy.init_node("Vx_to_MAVLink")
