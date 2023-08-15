@@ -12,10 +12,17 @@ class Visualise:
         self.HOST = HOST
         self.PORT = PORT
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        #Connect to GCS
         self.s.connect((self.HOST, self.PORT))
         
         home = str(Path.home())
-        self.csv_data=home + '/PyGQIS/data.csv'
+
+        #Logs Vehicle data
+        self.csv_data=home + '/PyQGIS/data.csv'
+        
+        #Waypoint data
+        self.wpt_path=home + '/PyQGIS/waypoints.csv'
         if os.path.exists(self.csv_data):
             os.remove(self.csv_data)
         self.csv_file = open(self.csv_data, 'w')
@@ -23,11 +30,14 @@ class Visualise:
         dw = csv.DictWriter(self.csv_file, delimiter=',', fieldnames=header)
         dw.writeheader()
         self.csv_file.close()
+
+        #Variable declarations
         self.x,self.y,self.roll, self.pitch, self.yaw = 0,0,0,0,0
         self.lat, self.long = 0,0
         self.battery = 0.0
 
     def connect_to_gcs(self):
+        #Socket reception
         data = self.s.recv(1024)
         if data != b"":
             data = data.decode()
@@ -38,10 +48,21 @@ class Visualise:
             elif self.res[0] == 'ATTITUDE':
                 self.parse_yaw()
             elif self.res[0] == 'BAD_DATA':
-                print("Bad data")
+                print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Bad data")
             elif self.res[0] == 'BATTERY_STATUS':
                 self.parse_battery()
+
+            #Write to CSV
             self.write_to_csv()
+            
+            #Read Waypoints
+            self.get_waypoints()
+
+    def get_waypoints(self):
+        self.wpt_file = open(self.wpt_path, 'r')
+        reader = csv.reader(self.wpt_file)
+        for row in reader:
+            self.s.send(row[1].encode())
 
     def parse_gps(self):
         #['GPS', ' 40999994.0', '71000000.0', '2140.774169921875']
@@ -76,6 +97,6 @@ class Visualise:
 
 
 if __name__ == "__main__":
-    vis = Visualise(HOST="192.168.1.186", PORT=8080)
+    vis = Visualise(HOST="192.168.1.172", PORT=8080)
     while 1:
         vis.connect_to_gcs()
