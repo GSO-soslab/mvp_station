@@ -1,26 +1,53 @@
-from pymavlink import mavutil
+from pymavlink import mavutil, mavwp
 
 class GroundControlChannel:
     def __init__(self, device:str, baud:int):
         if "udpin" in device:
             self.connection = mavutil.mavlink_connection(device=device, baudrate=baud)
         elif "/dev/tty" in device:
-            self.connection = mavutil.mavserial(device=device, baud=baud)
+            self.connection = mavutil.mavlink_connection(device=device, baud=baud)
     
     def wait_heartbeat(self):
         return self.connection.wait_heartbeat()
+    
+    def recv_match(self, type=None, timeout=None):
+        return self.connection.recv_match(type=type, timeout=timeout)  
 
-    def recv_match(self, type=None):
-        return self.connection.recv_match(type=type)        
+    def send_wp(self,master,waypoints):
+        wp = mavwp.MAVWPLoader()
+        seq = 1
+        frame = mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT
+        radius = 0
+        for waypoint in waypoints:
+            lat, lon, alt = waypoint
+            wp.add(mavutil.mavlink.MAVLink_mission_item_message(master.target_system,
+                master.target_component,
+                seq,
+                frame,
+                mavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
+                0, 0, 0, radius, 0, 0,
+                lat, lon, alt))
+            seq += 1
 
+        ##Sends a clear all message
+        master.waypoint_clear_all_send()
+
+        ##TELLS HOW MANY WAPYPOITNS
+        master.waypoint_count_send(wp.count())
+
+        for i in range(wp.count()):
+            master.mav.send(wp.wp(i))
 
 class VxChannel:
     def __init__(self,device:str, baud:int):
         if "udpout" in device:
             self.connection = mavutil.mavlink_connection(device=device, baudrate=baud)
         elif "/dev/tty" in device:
-            self.connection = mavutil.mavserial(device=device, baud=baud)
-        
+            self.connection = mavutil.mavlink_connection(device=device, baud=baud)
+
+    def recv_match(self, type=None, timeout=None, blocking = False):
+        return self.connection.recv_match(type=type, timeout=timeout, blocking=blocking)  
+    
     def send_hearbeat(self):
         self.connection.mav.heartbeat_send(mavutil.mavlink.MAV_TYPE_ONBOARD_CONTROLLER,
                                                 mavutil.mavlink.MAV_AUTOPILOT_INVALID, 0, 0, 0)
@@ -106,4 +133,3 @@ class VxChannel:
             0,
             0
         )
-
