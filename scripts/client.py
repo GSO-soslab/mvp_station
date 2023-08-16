@@ -25,6 +25,9 @@ class Visualise:
         self.wpt_path=home + '/PyQGIS/waypoints.csv'
         if os.path.exists(self.csv_data):
             os.remove(self.csv_data)
+        if os.path.exists(self.wpt_file):
+            os.remove(self.wpt_file)
+            
         self.csv_file = open(self.csv_data, 'w')
         header = ['TIME','BATTERY', 'X', 'Y','LAT','LONG','ROLL','PITCH','YAW',]
         dw = csv.DictWriter(self.csv_file, delimiter=',', fieldnames=header)
