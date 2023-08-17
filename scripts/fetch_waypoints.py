@@ -67,4 +67,4 @@ class Button():
 
         self.waypoints.append([self.lat, self.long])
         
-Button()
+l = Button()
