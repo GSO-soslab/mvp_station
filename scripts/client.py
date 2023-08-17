@@ -25,8 +25,8 @@ class Visualise:
         self.wpt_path=home + '/PyQGIS/waypoints.csv'
         if os.path.exists(self.csv_data):
             os.remove(self.csv_data)
-        if os.path.exists(self.wpt_file):
-            os.remove(self.wpt_file)
+        if os.path.exists(self.wpt_path):
+            os.remove(self.wpt_path)
             
         self.csv_file = open(self.csv_data, 'w')
         header = ['TIME','BATTERY', 'X', 'Y','LAT','LONG','ROLL','PITCH','YAW',]
@@ -34,6 +34,8 @@ class Visualise:
         dw.writeheader()
         self.csv_file.close()
 
+        self.wpt_file = open(self.wpt_path, 'w')
+        self.wpt_file.close()
         #Variable declarations
         self.x,self.y,self.roll, self.pitch, self.yaw = 0,0,0,0,0
         self.lat, self.long = 0,0
@@ -46,6 +48,7 @@ class Visualise:
             data = data.decode()
             self.res = data.strip('][').split(',')
             self.res = list(self.res)
+            print(self.res[0])
             if self.res[0] == 'GPS':
                 self.parse_gps()
             elif self.res[0] == 'ATTITUDE':
@@ -66,12 +69,13 @@ class Visualise:
         reader = csv.reader(self.wpt_file)
         for row in reader:
             self.s.send(row[1].encode())
+        self.wpt_file.close()
 
     def parse_gps(self):
         #['GPS', ' 40999994.0', '71000000.0', '2140.774169921875']
         self.lat = float(self.res[1]) /10e5
         self.long = float(self.res[2]) /10e5
-        self.alt = float(self.res[3])
+        self.alt = round(float(self.res[3]))
         transformer = pyproj.Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True)
         self.x, self.y = transformer.transform(self.long, self.lat)
 
