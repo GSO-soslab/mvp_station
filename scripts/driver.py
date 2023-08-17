@@ -18,8 +18,9 @@ class GroundControlChannel:
         seq = 1
         frame = mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT
         radius = 0
+        alt = 0
         for waypoint in waypoints:
-            lat, lon, alt = waypoint
+            lat, lon = waypoint
             wp.add(mavutil.mavlink.MAVLink_mission_item_message(master.target_system,
                 master.target_component,
                 seq,

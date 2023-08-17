@@ -31,15 +31,17 @@ class CommsGCS:
         #thread to listen for new clients and send msg through sockets.
         threading.Thread(target=self.recv_mavlink_msg).start()
         #Thread to receive waypoints from client
-        threading.Thread(target=self.recv_wp).start()
         
-    def recv_wp(self):
-        while 1:
-            data = [[-41, 70, 0], [100,100,0]]
-            key = input()
-            if key == "k":
-                self.gc.send_wp(self.gc.connection, data)
-                print("sent")
+    def recv_wp(self, conn, addr):
+        data = conn.recv(1024)
+        data = data.decode()
+        waypoints = []
+        data = data.split('], [')
+        for i in data:
+            i = i.strip('[]').split(',')
+            i = list(map(float, i))
+            waypoints.append(i)
+        self.gc.send_wp(self.gc.connection, waypoints)
 
     def listen(self):
         print("Starting to listen for socket client")
@@ -50,6 +52,7 @@ class CommsGCS:
             #Each new connection gets a new thread
             self.x = threading.Thread(target=self.start_socket, args=(conn, addr)).start()
             print(f'[Active Connections]: {threading.activeCount()}')
+            threading.Thread(target=self.recv_wp,  args=(conn, addr)).start()
     
     def start_socket(self, conn, addr):
         while 1:
@@ -74,6 +77,7 @@ class CommsGCS:
         #Runs on a seperate thread and continuously gets the new MAVmsgs.
         while 1:
             self.msg = self.gc.recv_match()
+            # print(self.msg)
             time.sleep(self.threadlock_speed)
 
     def encode_and_send(self, message, conn):
@@ -109,3 +113,10 @@ class CommsGCS:
 
 if __name__ == "__main__":
     comms = CommsGCS(HOST= "192.168.1.172", PORT=8080, device="/dev/ttyUSB0", baud=57600)
+
+
+
+#Undo button Fnts and colors
+#Create wP or Service call
+#USBl Data
+#Polishing
