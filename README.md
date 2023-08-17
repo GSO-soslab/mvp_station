@@ -24,7 +24,6 @@ GCS distributes Vx data to all the connected clients.
 - Launch `roslaunch vx_comms start_comms_vx.launch`  on the vehicle side. <br>
 - Configure and `python3 scripts/gcs_script.py` on the GCS side. <br>
 - Configure and `python3 scripts/client.py` on the Client side. <br>
-<br>
 - Run the QGIS project and open `fetch_waypoints.py` in the environment.
 
 ![alt_text](/media/qgis.gif)
