@@ -40,6 +40,7 @@ class Visualise:
         self.x,self.y,self.roll, self.pitch, self.yaw = 0,0,0,0,0
         self.lat, self.long = 0,0
         self.battery = 0.0
+        self.point =""
 
     def connect_to_gcs(self):
         #Socket reception
@@ -68,7 +69,11 @@ class Visualise:
         self.wpt_file = open(self.wpt_path, 'r')
         reader = csv.reader(self.wpt_file)
         for row in reader:
-            self.s.send(row[1].encode())
+            flag = row[2]
+            if self.point != row[1]:
+                self.point = row[1]
+                self.s.sendall(self.point.encode())
+            #Send service flag
         self.wpt_file.close()
 
     def parse_gps(self):
@@ -104,6 +109,6 @@ class Visualise:
 
 
 if __name__ == "__main__":
-    vis = Visualise(HOST="192.168.1.172", PORT=8080)
+    vis = Visualise(HOST="192.168.1.186", PORT=8080)
     while 1:
         vis.connect_to_gcs()

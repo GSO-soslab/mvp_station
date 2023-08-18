@@ -37,9 +37,11 @@ class Interface():
 
         #list of waypoints.
         self.waypoints = []
+        self.flag = 0
 
     def service_callBack(self):
         print("Service")
+        self.flag = 1
 
     def undo_waypoint(self):
         if self.waypoints == []:
@@ -67,7 +69,8 @@ class Interface():
             csv_writer = csv.writer(csv_file, delimiter=',',quotechar='"',quoting=csv.QUOTE_ALL)
             # a reference to our map canvas
             csv_writer.writerow([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                                self.waypoints])
+                                self.waypoints,
+                                self.flag])
 
         #Once sent, the script stops running and the cursor is set to the pan tool.
         self.iface.removeToolBarIcon(self.action)
