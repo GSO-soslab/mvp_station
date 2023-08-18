@@ -115,10 +115,3 @@ class CommsGCS:
 
 if __name__ == "__main__":
     comms = CommsGCS(HOST= "192.168.1.186", PORT=8080, device="/dev/ttyUSB1", baud=57600)
-
-
-
-#Undo button Fnts and colors
-#Create wP or Service call
-#USBl Data
-#Polishing
