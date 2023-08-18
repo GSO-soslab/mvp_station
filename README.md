@@ -4,7 +4,7 @@ Scalable Robot Dashboard & GroundStation built on MAVLink and QGIS
 - `vx_script.py`  : deals with converting ros msgs into mavlink msgs and sends across the desired transport(Both RF and UDP are supported). Runs on the Vehicle. <br>
 - `gcs_script.py` : receives MAVLink msgs and sends the necesary parsed messages to its clients via sockets. Runs on the GCS computer. <br>
 - `client.py` : is the client-side script. Communicates with the GCS via sockets.<br>
-- `fetch_waypoints.py` is the QGIS Interface. 
+- `interface.py` is the QGIS Interface. 
 
 ### Requirements && Dependencies
 ```pip3 install -r requirements.txt```
@@ -24,6 +24,6 @@ GCS distributes Vx data to all the connected clients.
 - Launch `roslaunch vx_comms start_comms_vx.launch`  on the vehicle side. <br>
 - Configure and `python3 scripts/gcs_script.py` on the GCS side. <br>
 - Configure and `python3 scripts/client.py` on the Client side. <br>
-- Run the QGIS project and open `fetch_waypoints.py` in the environment.
+- Run the QGIS project and open `interface.py` in the environment.
 
 ![alt_text](/media/qgis.gif)
