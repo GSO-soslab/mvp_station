@@ -33,15 +33,17 @@ class CommsGCS:
         #Thread to receive waypoints from client
         
     def recv_wp(self, conn, addr):
-        data = conn.recv(1024)
-        data = data.decode()
-        waypoints = []
-        data = data.split('], [')
-        for i in data:
-            i = i.strip('[]').split(',')
-            i = list(map(float, i))
-            waypoints.append(i)
-        self.gc.send_wp(self.gc.connection, waypoints)
+        while 1:
+            data = conn.recv(1024)
+            data = data.decode()
+            waypoints = []
+            data = data.split('], [')
+            for i in data:
+                i = i.strip('[]').split(',')
+                i = list(map(float, i))
+                waypoints.append(i)
+                print(i)
+            self.gc.send_wp(self.gc.connection, waypoints)
 
     def listen(self):
         print("Starting to listen for socket client")
@@ -112,7 +114,7 @@ class CommsGCS:
         self.encode_and_send(message, conn)
 
 if __name__ == "__main__":
-    comms = CommsGCS(HOST= "192.168.1.172", PORT=8080, device="/dev/ttyUSB0", baud=57600)
+    comms = CommsGCS(HOST= "192.168.1.186", PORT=8080, device="/dev/ttyUSB1", baud=57600)
 
 
 
