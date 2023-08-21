@@ -5,7 +5,7 @@ import pyproj
 import os
 from datetime import datetime
 from pathlib import Path
-
+import sys
 
 class Visualise:
     def __init__(self, HOST, PORT):
@@ -18,23 +18,32 @@ class Visualise:
         
         home = str(Path.home())
 
-        #Logs Vehicle data
-        self.csv_data=home + '/PyQGIS/data.csv'
-        
-        #Waypoint data
-        self.wpt_path=home + '/PyQGIS/waypoints.csv'
-        if os.path.exists(self.csv_data):
-            os.remove(self.csv_data)
-        if os.path.exists(self.wpt_path):
-            os.remove(self.wpt_path)
-            
+        #Logs data
+        if (sys.platform == "win32"):
+            self.data_path = home + '\\PyQGIS'
+        elif (sys.platform == "linux"):
+            self.data_path = home + '/PyQGIS'
+    
+        if not os.path.exists(self.data_path):
+            os.makedirs(self.data_path)
+
+        if (sys.platform == "win32"):
+            self.csv_data = self.data_path + "\\data.csv"
+        elif (sys.platform == "linux"):
+            self.csv_data = self.data_path + "/data.csv"
+    
         self.csv_file = open(self.csv_data, 'w')
         header = ['TIME','BATTERY', 'X', 'Y','LAT','LONG','ROLL','PITCH','YAW',]
         dw = csv.DictWriter(self.csv_file, delimiter=',', fieldnames=header)
         dw.writeheader()
         self.csv_file.close()
 
-        self.wpt_file = open(self.wpt_path, 'w')
+        if (sys.platform == "win32"):
+            self.wpt_data = self.data_path + "\\waypoints.csv"
+        elif (sys.platform == "linux"):
+            self.wpt_data = self.data_path + "/waypoints.csv"
+
+        self.wpt_file = open(self.wpt_data, 'w')
         self.wpt_file.close()
         #Variable declarations
         self.x,self.y,self.roll, self.pitch, self.yaw = 0,0,0,0,0
@@ -66,14 +75,23 @@ class Visualise:
             self.get_waypoints()
 
     def get_waypoints(self):
-        self.wpt_file = open(self.wpt_path, 'r')
+        self.wpt_file = open(self.wpt_data, 'r')
         reader = csv.reader(self.wpt_file)
-        for row in reader:
-            flag = row[2]
-            if self.point != row[1]:
-                self.point = row[1]
-                self.s.sendall(self.point.encode())
-            #Send service flag
+        if (sys.platform == 'win32'):
+            for row in reader: 
+                flag = row[2]
+                if self.point != row[1]:
+                    self.point = row[1]
+                    self.s.sendall(self.point.encode())
+                #Send service flag
+                break
+        elif (sys.platform == 'linux'):
+            for row in reader: 
+                flag = row[2]
+                if self.point != row[1]:
+                    self.point = row[1]
+                    self.s.sendall(self.point.encode())
+                #Send service flag
         self.wpt_file.close()
 
     def parse_gps(self):
@@ -109,6 +127,6 @@ class Visualise:
 
 
 if __name__ == "__main__":
-    vis = Visualise(HOST="192.168.1.186", PORT=8080)
+    vis = Visualise(HOST="192.168.1.172", PORT=8080)
     while 1:
         vis.connect_to_gcs()

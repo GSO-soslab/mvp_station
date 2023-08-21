@@ -7,6 +7,7 @@ from datetime import datetime
 import csv
 from pathlib import Path
 import os
+import sys
 
 class Interface():
     def __init__(self):
@@ -61,11 +62,11 @@ class Interface():
         else:
             print("Waypoints sent")
             home = str(Path.home())
-            path = home + '/PyQGIS'
-            if not os.path.exists(path):
-                os.makedirs(path)
-            csvPath = path + '/waypoints.csv'
-            csv_file = open(csvPath, 'w')
+            if (sys.platform == "win32"):
+                path = home + '\\PyQGIS\\waypoints.csv'
+            elif(sys.platform == "linux"):
+                path = home + '/PyQGIS/waypoints.csv'
+            csv_file = open(path, 'w')
             csv_writer = csv.writer(csv_file, delimiter=',',quotechar='"',quoting=csv.QUOTE_ALL)
             # a reference to our map canvas
             csv_writer.writerow([datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
@@ -91,9 +92,15 @@ class Interface():
 
         #creates the folder to store individual point.
         home = str(Path.home())
-        path = home + "/PyQGIS/Points/"
-        if not os.path.exists(path):
-            os.makedirs(path)
+
+        if (sys.platform == "linux"):
+            path = home + "/PyQGIS/Points/"
+            if not os.path.exists(path):
+                os.makedirs(path)
+        elif (sys.platform == "win32"):
+            path = home + "\\PyQGIS\\Points\\"
+            if not os.path.exists(path):
+                os.makedirs(path)
         self.point_name = f"point{len(self.waypoints)}"
         fn = path+ self.point_name +".shp"
 

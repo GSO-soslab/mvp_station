@@ -1,3 +1,3 @@
 numpy==1.24.2
 pymavlink==2.4.38
-pyproj==2.5.0
+pyproj==3.6.0
