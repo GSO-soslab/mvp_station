@@ -37,11 +37,24 @@ class CommsROSVx:
         #Some global varibles
         self.depth = 0
         self.x = threading.Thread(target=self.read_wp).start()
+        self.waypoints = []
+        self.count = 0
 
     def read_wp(self):
         while True:
             msg = self.vx.recv_match(type=["MISSION_CLEAR_ALL","MISSION_ITEM", "MISSION_COUNT"]) 
             print("Received Waypoints from gcs:", msg)
+            if msg != None:
+                if msg.get_type() == "MISSION_CLEAR_ALL":
+                    self.waypoints.clear()
+                elif msg.get_type() == "MISSION_COUNT":
+                    self.count = msg.count
+                elif msg.get_type() == "MISSION_ITEM":
+                    lat = msg.x
+                    long = msg.y
+                    self.waypoints.append([lat, long])
+            if ((self.waypoints != []) and (len(self.waypoints) == self.count)):
+                    print(self.waypoints)
             time.sleep(1)
 
 
