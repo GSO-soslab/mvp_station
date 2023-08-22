@@ -8,6 +8,8 @@ from std_msgs.msg import Int16
 from sensor_msgs.msg import NavSatFix, FluidPressure
 from nav_msgs.msg import Odometry
 import threading
+import os
+import yaml
 
 class CommsROSVx:
     def __init__(self, device:str, baud:int):
@@ -95,6 +97,11 @@ class CommsROSVx:
             # rospy.loginfo("Battery Sent")
 
 if __name__ == "__main__":
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    os.chdir(dir_path)
+
+    with open("../config/vehicle_param.yaml", "r") as yaml_file:
+        yaml_data = yaml.safe_load(yaml_file)
     rospy.init_node("Vx_to_MAVLink")
-    VxComms = CommsROSVx('/dev/ttyUSB0', 57600)
+    VxComms = CommsROSVx(device=yaml_data["MAVLink"]["connection_string"], baud=yaml_data["MAVLink"]["baud"])
     rospy.spin()

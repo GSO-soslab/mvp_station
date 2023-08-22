@@ -3,6 +3,8 @@ import driver
 import socket
 import threading
 import time
+import yaml
+import os 
 
 class CommsGCS:
     def __init__(self, HOST:str, PORT:str, device:str, baud:int):
@@ -114,4 +116,13 @@ class CommsGCS:
         self.encode_and_send(message, conn)
 
 if __name__ == "__main__":
-    comms = CommsGCS(HOST= "192.168.1.186", PORT=8080, device="/dev/ttyUSB1", baud=57600)
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    os.chdir(dir_path)
+
+    with open("../config/gcs_param.yaml", "r") as yaml_file:
+        yaml_data = yaml.safe_load(yaml_file)
+    
+    comms = CommsGCS(HOST= yaml_data["Socket"]["hostname"], 
+                     PORT=yaml_data["Socket"]["port"], 
+                     device=yaml_data["MAVLink"]["connection_string"], 
+                     baud=yaml_data["MAVLink"]["baud"])

@@ -6,6 +6,8 @@ import os
 from datetime import datetime
 from pathlib import Path
 import sys
+import yaml
+import os
 
 class Visualise:
     def __init__(self, HOST, PORT):
@@ -127,6 +129,12 @@ class Visualise:
 
 
 if __name__ == "__main__":
-    vis = Visualise(HOST="192.168.1.172", PORT=8080)
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    os.chdir(dir_path)
+
+    with open("../config/client_param.yaml", "r") as yaml_file:
+        yaml_data = yaml.safe_load(yaml_file)
+    
+    vis = Visualise(HOST=yaml_data["Socket"]["hostname"], PORT=yaml_data["Socket"]["port"])
     while 1:
         vis.connect_to_gcs()

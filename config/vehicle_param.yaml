@@ -1,3 +1,7 @@
+MAVLink:
+  connection_string: '/dev/ttyUSB0'
+  baud: 57600
+
 enable_gps: True
 gps_topic: "/alpha_rise/gps/fix"
 

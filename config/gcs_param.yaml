@@ -1,0 +1,7 @@
+MAVLink:
+  connection_string: "/dev/ttyUSB1"
+  baud: 56700
+
+Socket:
+  hostname: "192.168.1.186"
+  port: 8080
