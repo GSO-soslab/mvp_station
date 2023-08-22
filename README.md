@@ -20,7 +20,7 @@ GCS distributes Vx data to all the connected clients.
 
 
 ### Usage
-- Configure the `config/vehicle_param.yaml` to the desired states. <br>
+- Configure the `config/[component]_param.yaml` to the desired states. <br>
 - Launch `roslaunch vx_comms start_comms_vx.launch`  on the vehicle side. <br>
 - Configure and `python3 scripts/gcs_script.py` on the GCS side. <br>
 - Configure and `python3 scripts/client.py` on the Client side. <br>
