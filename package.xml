@@ -1,13 +1,13 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>vx_comms</name>
+  <name>mvp_station</name>
   <version>0.0.0</version>
-  <description>The vx_comms package</description>
+  <description>The mvp_station package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="soslab@todo.todo">soslab</maintainer>
+  <maintainer email="tony.jacob@uri.edu"></maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
