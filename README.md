@@ -1,4 +1,4 @@
-# vx_comms
+# mvp_station
 Scalable Robot Dashboard & GroundStation built on MAVLink and QGIS
 ### Scripts
 - `vx_script.py`  : deals with converting ros msgs into mavlink msgs and sends across the desired transport(Both RF and UDP are supported). Runs on the Vehicle. <br>
