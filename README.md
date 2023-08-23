@@ -28,9 +28,8 @@ GCS distributes Vx data to all the connected clients.
 `Web ► QuickMapServices ► Settings`<br>
 Go to the `More services` tab. <br>
 Read carefully the message of this tab and if you agree click on the `Get Contributed pack` button. <br>
-Click `Save`.
-<br>
+Click `Save`.<br>
 Reopen the `Web ► QuickMapServices` menu you will see that more providers are available.<br>
-- Run the QGIS project and open `interface.py` in the environment.
+- Open the QGIS project `dashboard.qgz` and open `interface.py` in the environment.
 
 ![alt_text](/media/qgis.gif)
