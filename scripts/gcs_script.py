@@ -45,6 +45,18 @@ class CommsGCS:
                 i = list(map(float, i))
                 waypoints.append(i)
             self.gc.send_wp(self.gc.connection, waypoints)
+
+            #Parse to YAML format
+            l = []
+            for i in waypoints:
+                wp_string = {"lat":i[0], "lon": i[1]}
+                l.append(wp_string)
+
+            yaml_details = {'frame_id': 'world',
+                            'll_waypoints': l}
+            with open('waypoints.yaml', 'w') as f:
+                data = yaml.dump(yaml_details, f, sort_keys=False, default_flow_style=False)
+                
             print("SENT")
             print(waypoints)
 
