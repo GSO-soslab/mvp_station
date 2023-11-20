@@ -38,15 +38,17 @@ class CommsROSVx:
 
         #Some global varibles
         self.depth = 0
-        self.x = threading.Thread(target=self.read_wp).start()
         self.waypoints = []
         self.count = 0
+        self.x = threading.Thread(target=self.read_wp).start()
 
     def read_wp(self):
+        #Get list of waypoints from the QGIS
+        msg = None
         while True:
             msg = self.vx.recv_match(type=["MISSION_CLEAR_ALL","MISSION_ITEM", "MISSION_COUNT"]) 
-            print("Received Waypoints from gcs:", msg)
             if msg != None:
+                print("Received Waypoints from gcs:", msg)
                 if msg.get_type() == "MISSION_CLEAR_ALL":
                     self.waypoints.clear()
                 elif msg.get_type() == "MISSION_COUNT":
@@ -72,7 +74,7 @@ class CommsROSVx:
             longitude = round(msg.longitude *10e5)
             self.tx_heartbeat()
             self.vx.send_gps(latitude=lat, longitude=longitude, depth = self.depth)
-            # rospy.loginfo("GPS Sent")
+            rospy.loginfo("GPS Sent")
     
     def tx_depth(self, msg):
         if self.enable_depth:
@@ -89,7 +91,7 @@ class CommsROSVx:
             self.tx_heartbeat()
             self.vx.send_attitude(roll=np.degrees(roll), pitch=np.degrees(pitch), yaw=np.degrees(yaw))
             time.sleep(0.5)
-            # rospy.loginfo("Attitude Sent")
+            rospy.loginfo("Attitude Sent")
 
     def tx_battery(self, msg):
         if self.enable_battery:
@@ -102,6 +104,8 @@ if __name__ == "__main__":
 
     with open("../config/vehicle_param.yaml", "r") as yaml_file:
         yaml_data = yaml.safe_load(yaml_file)
+
     rospy.init_node("Vx_to_MAVLink")
-    VxComms = CommsROSVx(device=yaml_data["MAVLink"]["connection_string"], baud=yaml_data["MAVLink"]["baud"])
+    VxComms = CommsROSVx(device=yaml_data["MAVLink"]["connection_string"], 
+                        baud=yaml_data["MAVLink"]["baud"])
     rospy.spin()

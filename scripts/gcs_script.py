@@ -44,8 +44,9 @@ class CommsGCS:
                 i = i.strip('[]').split(',')
                 i = list(map(float, i))
                 waypoints.append(i)
-                print(i)
             self.gc.send_wp(self.gc.connection, waypoints)
+            print("SENT")
+            print(waypoints)
 
     def listen(self):
         print("Starting to listen for socket client")
