@@ -12,20 +12,22 @@ import sys
 class Interface():
     def __init__(self):
         self.iface = iface
+        self.toolbar = self.iface.addToolBar("MVP Station")
+        
         #creates the button in the panel window
-        self.action = QAction("Send Waypoints", iface.mainWindow())
-        self.iface.addToolBarIcon(self.action)
+        self.action = QAction("Send Waypoints / Exit", iface.mainWindow())
+        self.toolbar.addAction(self.action)
         #on click, runs this function
         self.action.triggered.connect(self.run_function)
 
         #Undo button
         self.undo = QAction("Undo Point", iface.mainWindow())
-        self.iface.addToolBarIcon(self.undo)
+        self.toolbar.addAction(self.undo)
         self.undo.triggered.connect(self.undo_waypoint)
 
         #Service Button
-        self.service = QAction("Service", iface.mainWindow())
-        self.iface.addToolBarIcon(self.service)
+        self.service = QAction("Terminal", iface.mainWindow())
+        self.toolbar.addAction(self.service)
         self.service.triggered.connect(self.service_callBack)
 
         self.canvas = iface.mapCanvas()
@@ -41,8 +43,8 @@ class Interface():
         self.flag = 0
 
     def service_callBack(self):
-        print("Service")
-        self.flag = 1
+        print("Opened Terminal")
+        os.system("gnome-terminal -e 'bash -c \"exec bash\"'")
 
     def undo_waypoint(self):
         if self.waypoints == []:
@@ -77,6 +79,8 @@ class Interface():
         self.iface.removeToolBarIcon(self.action)
         self.iface.removeToolBarIcon(self.undo)
         self.iface.removeToolBarIcon(self.service)
+
+        self.iface.mainWindow().removeToolBar(self.toolbar)
 
         self.toolPan = QgsMapToolPan(self.canvas)
         self.canvas.setMapTool(self.toolPan)
