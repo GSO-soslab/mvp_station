@@ -49,13 +49,13 @@ class CommsGCS:
             #Parse to YAML format
             l = []
             for i in waypoints:
-                wp_string = {"lat":i[0], "lon": i[1]}
+                wp_string = {"lat":i[0], "lon": i[1], "alt": i[2]}
                 l.append(wp_string)
 
             yaml_details = {'frame_id': 'world',
                             'll_waypoints': l}
             with open('waypoints.yaml', 'w') as f:
-                data = yaml.dump(yaml_details, f, sort_keys=False, default_flow_style=False)
+                data = yaml.dump(yaml_details, f, sort_keys=False, default_flow_style=True, width=25)
                 
             print("SENT")
             print(waypoints)
