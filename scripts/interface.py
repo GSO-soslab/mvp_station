@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QAction
-from qgis.core import QgsProject
+from PyQt5.QtWidgets import QAction, QInputDialog
+from qgis.core import QgsProject, Qgis
 from qgis.utils import iface
 from qgis.gui import QgsMapToolEmitPoint
 from pyproj import Proj, transform
@@ -11,7 +11,9 @@ import sys
 
 class Interface():
     def __init__(self):
+        
         self.iface = iface
+        self.iface.messageBar().pushMessage(f"[INFO]", "Click to select Waypoints", level=Qgis.Info)
         self.toolbar = self.iface.addToolBar("MVP Station")
         
         #creates the button in the panel window
@@ -41,14 +43,16 @@ class Interface():
         #list of waypoints.
         self.waypoints = []
         self.flag = 0
+        self.alt = 0
 
     def service_callBack(self):
-        print("Opened Terminal")
+        #print("[INFO]:Opened Terminal")
+        self.iface.messageBar().pushMessage("[INFO]", "Opened Terminal", level=Qgis.Info)
         os.system("gnome-terminal -e 'bash -c \"exec bash\"'")
 
     def undo_waypoint(self):
         if self.waypoints == []:
-            print("There's no point to remove")
+            self.iface.messageBar().pushMessage(f"[WARN]", f"No more points to remove", level=Qgis.Warn)
         else:
             self.waypoints.pop()
             print(f"Points Selected: {len(self.waypoints)}")
@@ -60,9 +64,9 @@ class Interface():
         # This function could trigger the backend function directly
         # or could emit a signal connected to the backend function
         if self.waypoints == []:
-            print("No points were selected")
+            self.iface.messageBar().pushMessage(f"[INFO]", "Safely Exited", level=Qgis.Info)
         else:
-            print("Waypoints sent")
+            self.iface.messageBar().pushMessage(f"[INFO]", "Waypoints Sent", level=Qgis.Info)
             home = str(Path.home())
             if (sys.platform == "win32"):
                 path = home + '\\PyQGIS\\waypoints.csv'
@@ -93,31 +97,38 @@ class Interface():
             cood.append(point)
         #Transfrom from canvas frame to map frame
         self.long,self.lat = transform(P3857,P4326, cood[0], cood[1])
+        #Altitude Text Box
+        tempTuple = QInputDialog.getText(None, "Enter Altitude",f"If {int(self.alt)} meters, leave blank: ")
+        if tempTuple[1]:
+            alt = tempTuple[0]
+            if alt != '':
+                self.alt = float(alt)
 
-        #creates the folder to store individual point.
-        home = str(Path.home())
+            #creates the folder to store individual point.
+            home = str(Path.home())
 
-        if (sys.platform == "linux"):
-            path = home + "/PyQGIS/Points/"
-            if not os.path.exists(path):
-                os.makedirs(path)
-        elif (sys.platform == "win32"):
-            path = home + "\\PyQGIS\\Points\\"
-            if not os.path.exists(path):
-                os.makedirs(path)
-        self.point_name = f"point{len(self.waypoints)}"
-        fn = path+ self.point_name +".shp"
+            if (sys.platform == "linux"):
+                path = home + "/PyQGIS/Points/"
+                if not os.path.exists(path):
+                    os.makedirs(path)
+            elif (sys.platform == "win32"):
+                path = home + "\\PyQGIS\\Points\\"
+                if not os.path.exists(path):
+                    os.makedirs(path)
+            self.point_name = f"point{len(self.waypoints)}"
+            fn = path+ self.point_name +".shp"
 
-        #displays the point on the map
-        layerFields = QgsFields()
-        writer = QgsVectorFileWriter(fn, 'UTF-8', layerFields, QgsWkbTypes.Point, QgsCoordinateReferenceSystem("EPSG:3857"), "ESRI Shapefile")
-        feat = QgsFeature()
-        feat.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(cood[0], cood[1])))
-        writer.addFeature(feat)
-        iface.addVectorLayer(fn, '', 'ogr')
-        del(writer)
+            #displays the point on the map
+            layerFields = QgsFields()
+            writer = QgsVectorFileWriter(fn, 'UTF-8', layerFields, QgsWkbTypes.Point, QgsCoordinateReferenceSystem("EPSG:3857"), "ESRI Shapefile")
+            feat = QgsFeature()
+            feat.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(cood[0], cood[1])))
+            writer.addFeature(feat)
+            iface.addVectorLayer(fn, '', 'ogr')
+            del(writer)
 
-        self.waypoints.append([self.lat, self.long])
-        print(f"Points Selected: {len(self.waypoints)}")
+            self.waypoints.append([self.lat, self.long, self.alt])
+            print(f"[INFO]:Points Selected: {len(self.waypoints)}")
+            
         
 l = Interface()
