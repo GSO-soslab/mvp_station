@@ -98,7 +98,7 @@ class Interface():
         #Transfrom from canvas frame to map frame
         self.long,self.lat = transform(P3857,P4326, cood[0], cood[1])
         #Altitude Text Box
-        tempTuple = QInputDialog.getText(None, "Enter Altitude",f"If {int(self.alt)} meters, leave blank: ")
+        tempTuple = QInputDialog.getText(None, "Enter Altitude",f"Negative value is sub surface. If {int(self.alt)} meters, leave blank: ")
         if tempTuple[1]:
             alt = tempTuple[0]
             if alt != '':
