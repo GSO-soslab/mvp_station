@@ -62,7 +62,6 @@ class Interface():
         self.alt = 0
 
     def service_callBack(self):
-        #print("[INFO]:Opened Terminal")
         self.iface.messageBar().pushMessage("[INFO]", "Opened Terminal", level=Qgis.Info)
         os.system("gnome-terminal -e 'bash -c \"exec bash\"'")
 
