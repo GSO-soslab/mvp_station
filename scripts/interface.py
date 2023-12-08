@@ -8,6 +8,7 @@ import csv
 from pathlib import Path
 import os
 import sys
+import random
 
 class Interface():
     def __init__(self):
@@ -37,6 +38,21 @@ class Interface():
         self.pointTool = QgsMapToolEmitPoint(self.canvas)
         self.pointTool.canvasClicked.connect(self.display_point)
 
+        #Textbox to name the group
+        tempTuple = QInputDialog.getText(None, "Mission", "Name your Mission")
+        if tempTuple[1]:
+            group_name = tempTuple[0]
+            if group_name != '':
+                self.group_name = group_name
+            else:
+                self.group_name = "unnamed_mission" + str(random.randint(0,9))
+        else:
+            self.group_name = "unnamed_mission" + str(random.randint(0,9))
+        self.root = QgsProject.instance().layerTreeRoot()
+        self.myGroup = QgsLayerTreeGroup(self.group_name)
+        self.root.insertChildNode(0,self.myGroup)
+        # self.myGroup = self.root.addGroup(self.group_name)
+        
         #Keeps the cursor on the map
         self.canvas.setMapTool(self.pointTool)
 
@@ -52,10 +68,10 @@ class Interface():
 
     def undo_waypoint(self):
         if self.waypoints == []:
-            self.iface.messageBar().pushMessage(f"[WARN]", f"No more points to remove", level=Qgis.Warn)
+            self.iface.messageBar().pushMessage(f"[WARN]", f"No more points to remove", level=Qgis.WARNING)
         else:
             self.waypoints.pop()
-            print(f"Points Selected: {len(self.waypoints)}")
+            print(f"[INFO]:Points Selected: {len(self.waypoints)}")
             self.point_name = f"point{len(self.waypoints)}"
             layer = QgsProject.instance().mapLayersByName(self.point_name)[0]
             QgsProject.instance().removeMapLayer(layer)
@@ -94,7 +110,7 @@ class Interface():
         P4326 = Proj(init='epsg:4326')
         cood = []
         for point in pointTool:
-            cood.append(point)
+            cood.append(point)        
         #Transfrom from canvas frame to map frame
         self.long,self.lat = transform(P3857,P4326, cood[0], cood[1])
         #Altitude Text Box
@@ -124,11 +140,14 @@ class Interface():
             feat = QgsFeature()
             feat.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(cood[0], cood[1])))
             writer.addFeature(feat)
-            iface.addVectorLayer(fn, '', 'ogr')
             del(writer)
+
+            #Places in Group
+            layer = QgsVectorLayer(fn, self.point_name, "ogr")
+            self.myGroup.insertChildNode(-1, QgsLayerTreeLayer(layer))
+            QgsProject.instance().addMapLayer(layer, False)
 
             self.waypoints.append([self.lat, self.long, self.alt])
             print(f"[INFO]:Points Selected: {len(self.waypoints)}")
             
-        
 l = Interface()
