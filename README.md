@@ -32,4 +32,4 @@ Click `Save`.<br>
 Reopen the `Web ► QuickMapServices` menu you will see that more providers are available.<br>
 - Open the QGIS project `dashboard.qgz` and open `interface.py` in the environment.
 
-![alt_text](/media/qgis.gif)
+![alt_text](/media/qgis_updated.gif)
