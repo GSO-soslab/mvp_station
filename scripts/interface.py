@@ -20,30 +20,36 @@ class Interface():
         self.toolbar = self.iface.addToolBar("MVP Station")
 
         #Add Waypoints
-        self.undo = widgets.QAction("Add Point", iface.mainWindow())
-        self.toolbar.addAction(self.undo)
-        self.undo.triggered.connect(self.add_waypoint)
+        add = widgets.QAction("Add Point", iface.mainWindow())
+        self.toolbar.addAction(add)
+        add.triggered.connect(self.add_waypoint)
 
         #Undo button
-        self.undo = widgets.QAction("Undo Point", iface.mainWindow())
-        self.toolbar.addAction(self.undo)
-        self.undo.triggered.connect(self.undo_waypoint)
+        undo = widgets.QAction("Undo Point", iface.mainWindow())
+        self.toolbar.addAction(undo)
+        undo.triggered.connect(self.undo_waypoint)
 
         #creates the button in the panel window
-        self.action = widgets.QAction("Send Waypoints / Exit", iface.mainWindow())
-        self.toolbar.addAction(self.action)
+        send = widgets.QAction("Send Mission", iface.mainWindow())
+        self.toolbar.addAction(send)
         #on click, runs this function
-        self.action.triggered.connect(self.run_function)
+        send.triggered.connect(self.run_function)
+
+        #Exit Button
+        exit = widgets.QAction("Exit", iface.mainWindow())
+        self.toolbar.addAction(exit)
+        exit.triggered.connect(self.exit_callback)
 
         #Terminal Button
-        self.service = widgets.QAction("Terminal", iface.mainWindow())
-        self.toolbar.addAction(self.service)
-        self.service.triggered.connect(self.service_callBack)
+        terminal = widgets.QAction("Open Terminal", iface.mainWindow())
+        self.toolbar.addAction(terminal)
+        terminal.triggered.connect(self.terminal_callback)
 
-        #list of waypoints.
+        #Acts as reference for points added and undone.
         self.waypoints = []
         self.flag = 0
         self.alt = 0
+        #Acts reference for previous points.
         self.lat_list = []
         self.long_list = []
         self.alt_list = []
@@ -51,6 +57,7 @@ class Interface():
     def add_waypoint(self):
         # this QGIS tool emits as QgsPoint after each click on the map canvas
         self.pointTool = gui.QgsMapToolEmitPoint(self.canvas)
+        # When mouse is clicked, display_point function runs
         self.pointTool.canvasClicked.connect(self.display_point)
 
         #Textbox to name the group
@@ -65,8 +72,7 @@ class Interface():
             self.group_name = "unnamed_mission" + str(random.randint(0,9))
         self.myGroup = core.QgsLayerTreeGroup(self.group_name)
         self.root.insertChildNode(0,self.myGroup)
-        # self.myGroup = self.root.addGroup(self.group_name)
-        
+
         #Keeps the cursor on the map
         self.canvas.setMapTool(self.pointTool)
     
@@ -91,12 +97,13 @@ class Interface():
             #creates the folder to store individual point.
             home = str(Path.home())
 
+            #Stores points in folder
             if (sys.platform == "linux"):
-                path = home + "/PyQGIS/Points/"
+                path = home + f"/PyQGIS/Missions/{self.group_name}/"
                 if not os.path.exists(path):
                     os.makedirs(path)
             elif (sys.platform == "win32"):
-                path = home + "\\PyQGIS\\Points\\"
+                path = home + f"\\PyQGIS\\Missions\\{self.group_name}\\ s"
                 if not os.path.exists(path):
                     os.makedirs(path)
             self.point_name = f"wpt_{len(self.waypoints)}_{self.lat_list[-1]}_{self.long_list[-1]}_{self.alt_list[-1]}_{self.group_name}"
@@ -124,6 +131,7 @@ class Interface():
         else:
             self.waypoints.pop()
             print(f"[INFO]:Points Selected: {len(self.waypoints)}")
+            #Get previous point
             self.point_name = f"wpt_{len(self.waypoints)}_{self.lat_list[-1]}_{self.long_list[-1]}_{self.alt_list[-1]}_{self.group_name}"
             self.lat_list.pop()
             self.long_list.pop()
@@ -132,10 +140,15 @@ class Interface():
             core.QgsProject.instance().removeMapLayer(layer)
             self.canvas.refresh()
         
-    def service_callBack(self):
+    def terminal_callback(self):
+        #opens terminal
         self.iface.messageBar().pushMessage("[INFO]", "Opened Terminal", level=core.Qgis.Info)
         os.system("gnome-terminal -e 'bash -c \"exec bash\"'")
 
+    def exit_callback(self):
+        #Exits add_point mode.
+        self.toolPan = gui.QgsMapToolPan(self.canvas)
+        self.canvas.setMapTool(self.toolPan)
 
     def run_function(self):
         # This function could trigger the backend function directly
@@ -191,6 +204,7 @@ class Interface():
         self.waypoints = []
 
     def printLayerTreeHierarchy(self,node):
+        #Returns names of layers in canvas
         group_list = []
         for child in node.children():
             if isinstance(child, core.QgsLayerTreeGroup):
